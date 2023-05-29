@@ -5,40 +5,53 @@
 // Specifically, the length of the conical part is calculated, rather than directly specified,
 // by setting a specific outer diameter and the slope angle your printer can handle.
 
-inch_to_mm=25.4;
+inch_to_mm = 25.4;
 
-// Paramters
+// Parameters
 // diameters in config are outer measures
-stem_diameter_in=2.6;
-stem_length_in=2;
-funnel_diameter_in=6;
-stem_slope_deg=40; // from vertical
-wall_thickness_mm=2;
+funnel_diameter_in = 6;
+stem_diameter_in = 2.5;
+stem_length_in = 2;
+stem_slope_deg = 40; // from vertical
+stem_notch_start_in = 0.9;
+stem_notch_width_in = 0.35;
+wall_thickness_mm = 2;
 
 // Calculations
-stem_diameter=stem_diameter_in*inch_to_mm;
-funnel_diameter=funnel_diameter_in*inch_to_mm;
-stem_length=stem_length_in*inch_to_mm+0.01;
-cone_height=(funnel_diameter - stem_diameter)*cos(stem_slope_deg);
+funnel_diameter = funnel_diameter_in * inch_to_mm;
+stem_diameter = stem_diameter_in * inch_to_mm;
+stem_length = stem_length_in * inch_to_mm + 0.01;
+stem_notch_start = stem_notch_start_in * inch_to_mm;
+stem_notch_width = stem_notch_width_in * inch_to_mm;
+
+cone_height = (funnel_diameter - stem_diameter) * cos(stem_slope_deg);
 
 // Set circular segment angle lower on prod build
-$fa= $preview ? 12 : 2;
+$fa = $preview ? 12 : 2;
 
 difference() {
   union() {
     //cone
     cylinder(h = cone_height, r1 = funnel_diameter / 2, r2 = stem_diameter / 2, center = true);
     //stem
-    translate([0, 0, (cone_height+stem_length)/2 - 0.01])
+    translate([0, 0, (cone_height + stem_length) / 2 - 0.01])
       cylinder(h = stem_length, r = stem_diameter / 2, center = true);
   }
 
   #union() {
     //cone
     translate([0, 0, - 0.01])
-    cylinder(h = cone_height+ 0.02, r1 = funnel_diameter / 2 - wall_thickness_mm, r2 = stem_diameter / 2 - wall_thickness_mm, center = true);
+      cylinder(h = cone_height + 0.02, r1 = funnel_diameter / 2 - wall_thickness_mm, r2 = stem_diameter / 2 -
+        wall_thickness_mm, center = true);
     //stem
-    translate([0, 0, (cone_height+stem_length)/2 - 0.01])
-      cylinder(h = stem_length+ 0.02, r = stem_diameter / 2 - wall_thickness_mm, center = true);
+    translate([0, 0, (cone_height + stem_length) / 2 - 0.01])
+      cylinder(h = stem_length + 0.02, r = stem_diameter / 2 - wall_thickness_mm, center = true);
+    //notch
+    //notch
+    //offset from halfway up funnel cone_height
+    notch_length = stem_length - stem_notch_start + 0.1;
+    translate([0, 0, cone_height / 2 + notch_length / 2 + stem_notch_start])
+      cube([stem_notch_width, stem_diameter * 1.1, notch_length], center = true);
   }
 }
+
