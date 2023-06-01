@@ -16,6 +16,7 @@ stem_slope_deg = 40; // from vertical
 stem_notch_start_in = 0.9;
 stem_notch_width_in = 0.35;
 wall_thickness_mm = 2;
+divider_handle_height_in = 0.75;
 
 // Calculations
 funnel_diameter = funnel_diameter_in * inch_to_mm;
@@ -23,6 +24,7 @@ stem_diameter = stem_diameter_in * inch_to_mm;
 stem_length = stem_length_in * inch_to_mm + 0.01;
 stem_notch_start = stem_notch_start_in * inch_to_mm;
 stem_notch_width = stem_notch_width_in * inch_to_mm;
+divider_handle_height = divider_handle_height_in * inch_to_mm;
 
 cone_height = (funnel_diameter - stem_diameter) * cos(stem_slope_deg);
 
@@ -96,7 +98,7 @@ module mixerPlug()
 			}
 		}
 
-    stub_height=12;
+		stub_height = 12;
 		union()
 		{
 			// divider
@@ -104,10 +106,21 @@ module mixerPlug()
 			// feed cone
 			cylinder(r1 = 0, r2 = stem_diameter / 2, h = cone_height, center = true);
 			// stub
-			translate([ 0, 0, cone_height / 2 + stub_height/2 ])
+			translate([ 0, 0, cone_height / 2 + stub_height / 2 ])
 			{
-				cylinder(r1 = (stem_diameter -  wall_thickness_mm) / 2, r2 = (stem_diameter - 2 * wall_thickness_mm) / 2,
+				cylinder(r1 = (stem_diameter - wall_thickness_mm) / 2, r2 = (stem_diameter - 2 * wall_thickness_mm) / 2,
 				         h = stub_height, center = true);
+			}
+		}
+	}
+
+	translate([ 0, 0, -cone_height / 2 ])
+	{
+		rotate([ 90, 0, 0 ])
+		{
+			scale([ (funnel_diameter - (2 * wall_thickness_mm) - 10) / (divider_handle_height * 2), 1, 1 ])
+			{
+				cylinder(r = divider_handle_height, h = wall_thickness_mm, center = true);
 			}
 		}
 	}
