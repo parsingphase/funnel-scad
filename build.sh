@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-FILESTEM=funnel
+FILESTEM=birdfeederFunnel
 
 OPENSCAD_EXE=/Applications/OpenSCAD.app/Contents/MacOS/OpenSCAD
 
@@ -18,9 +18,12 @@ cd "$(get_script_dir)"
 $OPENSCAD_EXE -v
 
 # known spurious warning: https://github.com/openscad/openscad/issues/2888
-$OPENSCAD_EXE --export-format binstl -o "${FILESTEM}-DO-NOT-PRINT.stl" $FILESTEM.scad  2>&1 | grep -v 'Fontconfig warning'
-$OPENSCAD_EXE --export-format binstl -d "funnel_only=true" -o "${FILESTEM}-funnel.stl" $FILESTEM.scad 2>&1 | grep -v 'Fontconfig warning'
-$OPENSCAD_EXE --export-format binstl -d "plug_only=true" -o "${FILESTEM}-plug.stl" $FILESTEM.scad  2>&1 | grep -v 'Fontconfig warning'
+echo Rendering overview
+$OPENSCAD_EXE --export-format binstl -o "output/${FILESTEM}-DO-NOT-PRINT.stl" $FILESTEM.scad  2>&1 | grep -v 'Fontconfig warning'
+echo Rendering funnel
+$OPENSCAD_EXE --export-format binstl -D "funnel_only=true" -o "output/${FILESTEM}-funnel.stl" $FILESTEM.scad 2>&1 | grep -v 'Fontconfig warning'
+echo Rendering plug
+$OPENSCAD_EXE --export-format binstl -D "plug_only=true" -o "output/${FILESTEM}-plug.stl" $FILESTEM.scad  2>&1 | grep -v 'Fontconfig warning'
 
-open -a Preview "${FILESTEM}-DO-NOT-PRINT.stl"
+open -a Preview "output/${FILESTEM}-DO-NOT-PRINT.stl"
 echo Done
