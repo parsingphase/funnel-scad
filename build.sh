@@ -17,16 +17,10 @@ cd "$(get_script_dir)"
 
 $OPENSCAD_EXE -v
 
-set +e
 # known spurious warning: https://github.com/openscad/openscad/issues/2888
-$OPENSCAD_EXE --export-format binstl -o $FILESTEM.stl $FILESTEM.scad 2>&1 | grep -v 'Fontconfig warning'
-RESULT=$?
+$OPENSCAD_EXE --export-format binstl -o "${FILESTEM}-DO-NOT-PRINT.stl" $FILESTEM.scad  2>&1 | grep -v 'Fontconfig warning'
+$OPENSCAD_EXE --export-format binstl -d "funnel_only=true" -o "${FILESTEM}-funnel.stl" $FILESTEM.scad 2>&1 | grep -v 'Fontconfig warning'
+$OPENSCAD_EXE --export-format binstl -d "plug_only=true" -o "${FILESTEM}-plug.stl" $FILESTEM.scad  2>&1 | grep -v 'Fontconfig warning'
 
-if [[ "$RESULT" == "0" ]]; then
-  echo "Built OK"
-else
-  echo "BUILD FAILURE"
-fi
-
-open -a Preview $FILESTEM.stl
+open -a Preview "${FILESTEM}-DO-NOT-PRINT.stl"
 echo Done

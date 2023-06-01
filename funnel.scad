@@ -5,6 +5,10 @@
 // Specifically, the length of the conical part is calculated, rather than directly specified,
 // by setting a specific outer diameter and the slope angle your printer can handle.
 
+// build config
+plug_only=false;
+funnel_only=false;
+
 inch_to_mm = 25.4;
 
 // Parameters
@@ -126,9 +130,15 @@ module mixerPlug()
 	}
 }
 
-#funnel();
-
-color("green")
+if (!plug_only)
 {
-	mixerPlug();
+#funnel();
+}
+
+if (!funnel_only)
+{
+	color("green")
+	{
+		mixerPlug();
+	}
 }
