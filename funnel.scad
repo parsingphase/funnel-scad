@@ -29,29 +29,42 @@ cone_height = (funnel_diameter - stem_diameter) * cos(stem_slope_deg);
 // Set circular segment angle lower on prod build
 $fa = $preview ? 12 : 2;
 
-difference() {
-  union() {
-    //cone
-    cylinder(h = cone_height, r1 = funnel_diameter / 2, r2 = stem_diameter / 2, center = true);
-    //stem
-    translate([0, 0, (cone_height + stem_length) / 2 - 0.01])
-      cylinder(h = stem_length, r = stem_diameter / 2, center = true);
-  }
+module funnel()
+{
+	difference()
+	{
+		union()
+		{
+			// cone
+			cylinder(h = cone_height, r1 = funnel_diameter / 2, r2 = stem_diameter / 2, center = true);
+			// stem
+			translate([ 0, 0, (cone_height + stem_length) / 2 - 0.01 ])
+			{
+				cylinder(h = stem_length, r = stem_diameter / 2, center = true);
+			}
+		}
 
-  #union() {
-    //cone
-    translate([0, 0, - 0.01])
-      cylinder(h = cone_height + 0.02, r1 = funnel_diameter / 2 - wall_thickness_mm, r2 = stem_diameter / 2 -
-        wall_thickness_mm, center = true);
-    //stem
-    translate([0, 0, (cone_height + stem_length) / 2 - 0.01])
-      cylinder(h = stem_length + 0.02, r = stem_diameter / 2 - wall_thickness_mm, center = true);
-    //notch
-    //notch
-    //offset from halfway up funnel cone_height
-    notch_length = stem_length - stem_notch_start + 0.1;
-    translate([0, 0, cone_height / 2 + notch_length / 2 + stem_notch_start])
-      cube([stem_notch_width, stem_diameter * 1.1, notch_length], center = true);
-  }
+#union() {
+		// cone
+		translate([ 0, 0, -0.01 ])
+		{
+			cylinder(h = cone_height + 0.02, r1 = funnel_diameter / 2 - wall_thickness_mm,
+			         r2 = stem_diameter / 2 - wall_thickness_mm, center = true);
+		}
+		// stem
+		translate([ 0, 0, (cone_height + stem_length) / 2 - 0.01 ])
+		{
+			cylinder(h = stem_length + 0.02, r = stem_diameter / 2 - wall_thickness_mm, center = true);
+		}
+		// notch
+		// offset from halfway up funnel cone_height
+		notch_length = stem_length - stem_notch_start + 0.1;
+		translate([ 0, 0, cone_height / 2 + notch_length / 2 + stem_notch_start ])
+		{
+			cube([ stem_notch_width, stem_diameter * 1.1, notch_length ], center = true);
+		}
+	}
+}
 }
 
+funnel();
