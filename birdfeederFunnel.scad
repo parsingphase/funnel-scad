@@ -6,8 +6,8 @@
 // by setting a specific outer diameter and the slope angle your printer can handle.
 
 // build config
-plug_only=false;
-funnel_only=false;
+plug_only = false;
+funnel_only = false;
 
 inch_to_mm = 25.4;
 
@@ -19,8 +19,9 @@ stem_length_in = 2;
 stem_slope_deg = 40; // from vertical
 stem_notch_start_in = 0.9;
 stem_notch_width_in = 0.35;
-wall_thickness_mm = 2;
 divider_handle_height_in = 0.75;
+wall_thickness_mm = 2;
+plug_scale = 1; // reduce below 1 to scale for clearance in filter
 
 // Calculations
 funnel_diameter = funnel_diameter_in * inch_to_mm;
@@ -35,10 +36,14 @@ cone_height = (funnel_diameter - stem_diameter) * cos(stem_slope_deg);
 // Set circular segment angle lower on prod build
 $fa = $preview ? 12 : 2;
 
-module _coneExclusion()
+module _coneExclusion(height_factor = 1)
 {
-	cylinder(h = cone_height + 0.02, r1 = funnel_diameter / 2 - wall_thickness_mm,
-	         r2 = stem_diameter / 2 - wall_thickness_mm, center = true);
+	translate([ 0, 0, -cone_height / 2 ]) // can't center due to stretch capability, so move it down instead
+	{
+		cylinder(h = (cone_height * height_factor) + 0.02, r1 = funnel_diameter / 2 - wall_thickness_mm,
+		         r2 = (funnel_diameter - (height_factor * (funnel_diameter - stem_diameter))) / 2 - wall_thickness_mm,
+		         center = false);
+	}
 }
 
 module _stemExclusion()
@@ -94,11 +99,7 @@ module mixerPlug()
 		{
 			translate([ 0, 0, -0.01 ])
 			{
-				_coneExclusion();
-			}
-			translate([ 0, 0, stemBottomZOffset ])
-			{
-				_stemExclusion();
+				_coneExclusion(1.2);
 			}
 		}
 
@@ -112,8 +113,8 @@ module mixerPlug()
 			// stub
 			translate([ 0, 0, cone_height / 2 + stub_height / 2 ])
 			{
-				cylinder(r1 = (stem_diameter - wall_thickness_mm) / 2, r2 = (stem_diameter - 2 * wall_thickness_mm) / 2,
-				         h = stub_height, center = true);
+				stub_wide_end_radius = (stem_diameter - 2 * wall_thickness_mm) / 2;
+				cylinder(r = stub_wide_end_radius, h = stub_height, center = true);
 			}
 		}
 	}
@@ -139,6 +140,6 @@ if (!funnel_only)
 {
 	color("green")
 	{
-		mixerPlug();
+		scale(plug_scale) mixerPlug();
 	}
 }
