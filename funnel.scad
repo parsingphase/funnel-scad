@@ -29,6 +29,19 @@ cone_height = (funnel_diameter - stem_diameter) * cos(stem_slope_deg);
 // Set circular segment angle lower on prod build
 $fa = $preview ? 12 : 2;
 
+module _coneExclusion()
+{
+	cylinder(h = cone_height + 0.02, r1 = funnel_diameter / 2 - wall_thickness_mm,
+	         r2 = stem_diameter / 2 - wall_thickness_mm, center = true);
+}
+
+module _stemExclusion()
+{
+	cylinder(h = stem_length + 0.02, r = stem_diameter / 2 - wall_thickness_mm, center = true);
+}
+
+stemBottomZOffset = (cone_height + stem_length) / 2 - 0.01;
+
 module funnel()
 {
 	difference()
@@ -38,33 +51,71 @@ module funnel()
 			// cone
 			cylinder(h = cone_height, r1 = funnel_diameter / 2, r2 = stem_diameter / 2, center = true);
 			// stem
-			translate([ 0, 0, (cone_height + stem_length) / 2 - 0.01 ])
+			translate([ 0, 0, stemBottomZOffset ])
 			{
 				cylinder(h = stem_length, r = stem_diameter / 2, center = true);
 			}
 		}
 
-#union() {
-		// cone
-		translate([ 0, 0, -0.01 ])
+		union()
 		{
-			cylinder(h = cone_height + 0.02, r1 = funnel_diameter / 2 - wall_thickness_mm,
-			         r2 = stem_diameter / 2 - wall_thickness_mm, center = true);
-		}
-		// stem
-		translate([ 0, 0, (cone_height + stem_length) / 2 - 0.01 ])
-		{
-			cylinder(h = stem_length + 0.02, r = stem_diameter / 2 - wall_thickness_mm, center = true);
-		}
-		// notch
-		// offset from halfway up funnel cone_height
-		notch_length = stem_length - stem_notch_start + 0.1;
-		translate([ 0, 0, cone_height / 2 + notch_length / 2 + stem_notch_start ])
-		{
-			cube([ stem_notch_width, stem_diameter * 1.1, notch_length ], center = true);
+			// cone
+			translate([ 0, 0, -0.01 ])
+			{
+				_coneExclusion();
+			}
+			// stem
+			translate([ 0, 0, stemBottomZOffset ])
+			{
+				_stemExclusion();
+			}
+			// notch along Y axis
+			// offset from halfway up funnel cone_height
+			notch_length = stem_length - stem_notch_start + 0.1;
+			translate([ 0, 0, cone_height / 2 + notch_length / 2 + stem_notch_start ])
+			{
+				cube([ stem_notch_width, stem_diameter * 1.1, notch_length ], center = true);
+			}
 		}
 	}
 }
+
+module mixerPlug()
+{
+	intersection()
+	{
+		union()
+		{
+			translate([ 0, 0, -0.01 ])
+			{
+				_coneExclusion();
+			}
+			translate([ 0, 0, stemBottomZOffset ])
+			{
+				_stemExclusion();
+			}
+		}
+
+    stub_height=12;
+		union()
+		{
+			// divider
+			cube([ funnel_diameter, wall_thickness_mm, cone_height ], center = true);
+			// feed cone
+			cylinder(r1 = 0, r2 = stem_diameter / 2, h = cone_height, center = true);
+			// stub
+			translate([ 0, 0, cone_height / 2 + stub_height/2 ])
+			{
+				cylinder(r1 = (stem_diameter -  wall_thickness_mm) / 2, r2 = (stem_diameter - 2 * wall_thickness_mm) / 2,
+				         h = stub_height, center = true);
+			}
+		}
+	}
 }
 
-funnel();
+#funnel();
+
+color("green")
+{
+	mixerPlug();
+}
